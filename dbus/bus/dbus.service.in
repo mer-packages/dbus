@@ -4,6 +4,7 @@ Requires=dbus.socket
 After=syslog.target
 
 [Service]
+ExecStartPre=@EXPANDED_BINDIR@/dbus-uuidgen --ensure
 ExecStart=@EXPANDED_BINDIR@/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation
 ExecReload=@EXPANDED_BINDIR@/dbus-send --print-reply --system --type=method_call --dest=org.freedesktop.DBus / org.freedesktop.DBus.ReloadConfig
 OOMScoreAdjust=-900
