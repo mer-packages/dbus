@@ -4119,6 +4119,7 @@ _dbus_close_all (void)
 dbus_bool_t
 _dbus_check_setuid (void)
 {
+  return FALSE;
   /* TODO: get __libc_enable_secure exported from glibc.
    * See http://www.openwall.com/lists/owl-dev/2012/08/14/1
    */
