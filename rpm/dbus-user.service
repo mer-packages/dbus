@@ -1,0 +1,13 @@
+
+#
+# This is the D-Bus service for the session
+#
+
+[Unit]
+Description=D-Bus Session Message Bus
+Requires=dbus.socket
+
+[Service]
+ExecStart=/bin/dbus-daemon --session --address=systemd: --nofork --systemd-activation
+ExecReload=/bin/dbus-send --print-reply --session --type=method_call --dest=org.freedesktop.DBus / org.freedesktop.DBus.ReloadConfig
+OOMScoreAdjust=-850
