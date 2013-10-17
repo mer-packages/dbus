@@ -4160,4 +4160,61 @@ _dbus_check_setuid (void)
 #endif
 }
 
+/**
+ * Read the addres from the socket and append it to the string
+ *
+ * @param fd the socket
+ * @param address
+ */
+dbus_bool_t _dbus_append_address_from_socket (int fd, DBusString *address)
+{
+  struct sockaddr_storage socket;
+  struct sockaddr_in *inet_addr = (struct sockaddr_in*)&socket;
+  struct sockaddr_in6 *inet6_addr = (struct sockaddr_in6*)&socket;
+  struct sockaddr_un *unix_addr = (struct sockaddr_un*)&socket;
+  char host[71];
+  char hostip[INET6_ADDRSTRLEN];
+  int size = sizeof(struct sockaddr_storage);
+
+  getsockname(fd, (struct sockaddr*)&socket, &size);
+
+  switch(socket.ss_family)
+    {
+    case AF_UNIX:
+      if (unix_addr->sun_path[0]=='\0')
+        {
+          if (!_dbus_string_append (address, "unix:abstract=") ||
+              !_dbus_string_append (address, &(unix_addr->sun_path[1])))
+            return FALSE;
+        }
+      else
+        {
+          if (!_dbus_string_append (address, "unix:path=") ||
+              !_dbus_string_append (address, unix_addr->sun_path))
+            return FALSE;
+        }
+      break;
+    case AF_INET:
+      if(inet_ntop(AF_INET, inet_addr, hostip, INET6_ADDRSTRLEN))
+        snprintf(host, 71, "tcp:family=ipv4,host=%s,port=%hu",
+                 hostip, ntohs(inet_addr->sin_port));
+      else
+        return FALSE;
+      if(!_dbus_string_append (address, host))
+        return FALSE;
+    case AF_INET6:
+      if(inet_ntop(AF_INET6, inet_addr, hostip, INET6_ADDRSTRLEN))
+        snprintf(host, 71, "tcp:family=ipv6,host=%s,port=%hu",
+                 hostip, ntohs(inet_addr->sin_port));
+      else
+        return FALSE;
+      if(!_dbus_string_append (address, host))
+        return FALSE;
+      break;
+    default:
+      return FALSE;
+    }
+  return TRUE;
+}
+
 /* tests in dbus-sysdeps-util.c */
