@@ -21,7 +21,7 @@
 ### END INIT INFO
 
 # Sanity checks.
-[ -x @EXPANDED_BINDIR@/dbus-daemon ] || exit 0
+[ -x /bin/dbus-daemon ] || exit 0
 
 # Source function library.
 . @EXPANDED_SYSCONFDIR@/rc.d/init.d/functions
