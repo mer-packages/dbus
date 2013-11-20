@@ -71,6 +71,9 @@
 #ifdef HAVE_GETPEERUCRED
 #include <ucred.h>
 #endif
+#ifdef HAVE_ALLOCA_H
+#include <alloca.h>
+#endif
 
 #ifdef HAVE_ADT
 #include <bsm/adt.h>
@@ -136,7 +139,7 @@ _dbus_open_socket (int              *fd_p,
   cloexec_done = *fd_p >= 0;
 
   /* Check if kernel seems to be too old to know SOCK_CLOEXEC */
-  if (*fd_p < 0 && errno == EINVAL)
+  if (*fd_p < 0 && (errno == EINVAL || errno == EPROTOTYPE))
 #endif
     {
       *fd_p = socket (domain, type, protocol);
@@ -733,7 +736,7 @@ _dbus_write_two (int               fd,
   }
 #else /* HAVE_WRITEV */
   {
-    int ret1;
+    int ret1, ret2;
 
     ret1 = _dbus_write (fd, buffer1, start1, len1);
     if (ret1 == len1 && buffer2 != NULL)
@@ -884,16 +887,24 @@ _dbus_connect_exec (const char     *path,
 {
   int fds[2];
   pid_t pid;
+  int retval;
+  dbus_bool_t cloexec_done = 0;
 
   _DBUS_ASSERT_ERROR_IS_CLEAR (error);
 
   _dbus_verbose ("connecting to process %s\n", path);
 
-  if (socketpair (AF_UNIX, SOCK_STREAM
 #ifdef SOCK_CLOEXEC
-                  |SOCK_CLOEXEC
+  retval = socketpair (AF_UNIX, SOCK_STREAM|SOCK_CLOEXEC, 0, fds);
+  cloexec_done = (retval >= 0);
+
+  if (retval < 0 && (errno == EINVAL || errno == EPROTOTYPE))
 #endif
-                  , 0, fds) < 0)
+    {
+      retval = socketpair (AF_UNIX, SOCK_STREAM, 0, fds);
+    }
+
+  if (retval < 0)
     {
       dbus_set_error (error,
                       _dbus_error_from_errno (errno),
@@ -902,8 +913,11 @@ _dbus_connect_exec (const char     *path,
       return -1;
     }
 
-  _dbus_fd_set_close_on_exec (fds[0]);
-  _dbus_fd_set_close_on_exec (fds[1]);
+  if (!cloexec_done)
+    {
+      _dbus_fd_set_close_on_exec (fds[0]);
+      _dbus_fd_set_close_on_exec (fds[1]);
+    }
 
   pid = fork ();
   if (pid < 0)
@@ -1934,11 +1948,15 @@ _dbus_accept  (int listen_fd)
  retry:
 
 #ifdef HAVE_ACCEPT4
-  /* We assume that if accept4 is available SOCK_CLOEXEC is too */
+  /*
+   * At compile-time, we assume that if accept4() is available in
+   * libc headers, SOCK_CLOEXEC is too. At runtime, it is still
+   * not necessarily true that either is supported by the running kernel.
+   */
   client_fd = accept4 (listen_fd, &addr, &addrlen, SOCK_CLOEXEC);
   cloexec_done = client_fd >= 0;
 
-  if (client_fd < 0 && errno == ENOSYS)
+  if (client_fd < 0 && (errno == ENOSYS || errno == EINVAL))
 #endif
     {
       client_fd = accept (listen_fd, &addr, &addrlen);
@@ -3052,7 +3070,7 @@ _dbus_full_duplex_pipe (int        *fd1,
   retval = socketpair(AF_UNIX, SOCK_STREAM|SOCK_CLOEXEC, 0, fds);
   cloexec_done = retval >= 0;
 
-  if (retval < 0 && errno == EINVAL)
+  if (retval < 0 && (errno == EINVAL || errno == EPROTOTYPE))
 #endif
     {
       retval = socketpair(AF_UNIX, SOCK_STREAM, 0, fds);
@@ -3118,8 +3136,11 @@ _dbus_printf_string_upper_bound (const char *format,
   char static_buf[1024];
   int bufsize = sizeof (static_buf);
   int len;
+  va_list args_copy;
 
-  len = vsnprintf (static_buf, bufsize, format, args);
+  DBUS_VA_COPY (args_copy, args);
+  len = vsnprintf (static_buf, bufsize, format, args_copy);
+  va_end (args_copy);
 
   /* If vsnprintf() returned non-negative, then either the string fits in
    * static_buf, or this OS has the POSIX and C99 behaviour where vsnprintf
@@ -3135,8 +3156,12 @@ _dbus_printf_string_upper_bound (const char *format,
        * or the real length could be coincidentally the same. Which is it?
        * If vsnprintf returns the truncated length, we'll go to the slow
        * path. */
-      if (vsnprintf (static_buf, 1, format, args) == 1)
+      DBUS_VA_COPY (args_copy, args);
+
+      if (vsnprintf (static_buf, 1, format, args_copy) == 1)
         len = -1;
+
+      va_end (args_copy);
     }
 
   /* If vsnprintf() returned negative, we have to do more work.
@@ -3152,7 +3177,10 @@ _dbus_printf_string_upper_bound (const char *format,
       if (buf == NULL)
         return -1;
 
-      len = vsnprintf (buf, bufsize, format, args);
+      DBUS_VA_COPY (args_copy, args);
+      len = vsnprintf (buf, bufsize, format, args_copy);
+      va_end (args_copy);
+
       dbus_free (buf);
 
       /* If the reported length is exactly the buffer size, round up to the
