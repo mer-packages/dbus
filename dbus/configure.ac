@@ -3,7 +3,7 @@ AC_PREREQ([2.63])
 
 m4_define([dbus_major_version], [1])
 m4_define([dbus_minor_version], [6])
-m4_define([dbus_micro_version], [8])
+m4_define([dbus_micro_version], [18])
 m4_define([dbus_version],
           [dbus_major_version.dbus_minor_version.dbus_micro_version])
 AC_INIT([dbus],[dbus_version],[https://bugs.freedesktop.org/enter_bug.cgi?product=dbus],[dbus])
@@ -37,7 +37,7 @@ LT_CURRENT=10
 
 ## increment any time the source changes; set to
 ##  0 if you increment CURRENT
-LT_REVISION=2
+LT_REVISION=6
 
 ## increment if any interfaces have been added; set to 0
 ## if any interfaces have been changed or removed. removal has
@@ -211,6 +211,9 @@ fi
 # These use GTest, from GLib, because life's too short. They're enabled by
 # default (unless you don't have GLib), because they don't bloat the library
 # or binaries.
+
+AC_DEFINE([GLIB_VERSION_MIN_REQUIRED], [GLIB_VERSION_2_26], [Ignore post-2.26 deprecations])
+AC_DEFINE([GLIB_VERSION_MAX_ALLOWED], [GLIB_VERSION_2_32], [Prevent post-2.32 APIs])
 
 with_glib=yes
 
@@ -685,6 +688,8 @@ AC_CHECK_HEADERS(unistd.h)
 AC_CHECK_HEADERS(ws2tcpip.h)
 
 AC_CHECK_HEADERS(wspiapi.h)
+
+AC_CHECK_HEADERS(alloca.h)
 
 # Add -D_POSIX_PTHREAD_SEMANTICS if on Solaris
 #
