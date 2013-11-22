@@ -24,7 +24,6 @@ Requires(pre): /usr/sbin/useradd
 Requires(preun): systemd
 Requires(post): systemd
 Requires(postun): systemd
-BuildRequires:  pkgconfig(x11)
 BuildRequires:  expat-devel >= 1.95.5
 BuildRequires:  gettext
 BuildRequires:  libcap-devel
