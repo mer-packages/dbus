@@ -123,6 +123,7 @@ _dbus_become_daemon (const DBusString *pidfile,
             dup2 (dev_null_fd, 2);
           else
             _dbus_verbose ("keeping stderr open due to DBUS_DEBUG_OUTPUT\n");
+          close (dev_null_fd);
         }
 
       if (!keep_umask)
@@ -1143,6 +1144,7 @@ _dbus_command_for_pid (unsigned long  pid,
                       "Failed to read from \"%s\": %s",
                       _dbus_string_get_const_data (&path),
                       _dbus_strerror (errno));      
+      _dbus_close (fd, NULL);
       goto fail;
     }
   
