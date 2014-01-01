@@ -1,3 +1,114 @@
+D-Bus 1.6.18 (2013-11-01)
+==
+
+The “sunflower plains” release.
+
+Fixes:
+
+• path_namespace='/' in match rules incorrectly matched nothing; it
+  now matches everything. (fd.o #70799, Simon McVittie)
+
+D-Bus 1.6.16 (2013-10-08)
+==
+
+The “Fortify Agility” release.
+
+Fixes:
+
+• Make dbus_connection_set_route_peer_messages(x, FALSE) behave as
+  documented. Previously, it assumed its second parameter was TRUE.
+  (fd.o #69165, Chengwei Yang)
+
+• Fix a NULL pointer dereference on an unlikely error path
+  (fd.o #69327, Sviatoslav Chagaev)
+
+• Unix-specific:
+  · If accept4() fails with EINVAL, as it can on older Linux kernels
+    with newer glibc, try accept() instead of going into a busy-loop.
+    (fd.o #69026, Chengwei Yang)
+  · If socket() or socketpair() fails with EINVAL or EPROTOTYPE,
+    for instance on Hurd or older Linux with a new glibc, try without
+    SOCK_CLOEXEC. (fd.o #69073; Pino Toscano, Chengwei Yang)
+  · Fix a file descriptor leak on an error code path.
+    (fd.o #69182, Sviatoslav Chagaev)
+  · Fix compilation if writev() is unavailable (fd.o #69409,
+    Vasiliy Balyasnyy)
+
+D-Bus 1.6.14 (2013-09-05)
+==
+
+The “Restore Fatigue” release.
+
+Fixes:
+
+• Avoid an infinite busy-loop if a signal interrupts waitpid()
+  (fd.o #68945, Simon McVittie)
+
+• Escape addresses containing non-ASCII characters correctly
+  (fd.o #53499, Chengwei Yang)
+
+• If malloc() returns NULL in _dbus_string_init() or similar, don't free
+  an invalid pointer if the string is later freed (fd.o #65959, Chengwei Yang)
+
+• If malloc() returns NULL in dbus_set_error(), don't va_end() a va_list
+  that was never va_start()ed (fd.o #66300, Chengwei Yang)
+
+• Fix a regression test on platforms with strict alignment (fd.o #67279,
+  Colin Walters)
+
+• Avoid calling function parameters "interface" since certain Windows headers
+  have a namespace-polluting macro of that name (fd.o #66493, Ivan Romanov)
+
+• Make "make -j check" work (fd.o #68852, Simon McVittie)
+
+D-Bus 1.6.12 (2013-06-13)
+==
+
+The “does this unit have a soul?” release.
+
+Fixes:
+
+• CVE-2013-2168: Fix misuse of va_list that could be used as a denial
+  of service for system services. Vulnerability reported by Alexandru Cornea.
+  (Simon)
+
+• In dbus-daemon, don't crash if a .service file starts with key=value
+  (fd.o #60853, Chengwei Yang)
+
+• Unix-specific:
+  · Fix an assertion failure if we try to activate systemd services before
+    systemd connects to the bus (fd.o #50199, Chengwei Yang)
+  · Avoid compiler warnings for ignoring the return from write()
+    (Chengwei Yang)
+
+D-Bus 1.6.10 (2013-04-24)
+==
+
+The “little-known facts about bananas” release.
+
+• Following Unicode Corrigendum #9, the noncharacters U+nFFFE, U+nFFFF,
+  U+FDD0..U+FDEF are allowed in UTF-8 strings again.
+  (fd.o #63072, Simon McVittie)
+
+• Diagnose incorrect use of dbus_connection_get_data() with negative slot
+  (i.e. before allocating the slot) rather than returning junk
+  (fd.o #63127, Dan Williams)
+
+• In the activation helper, when compiled for tests, do not reset the system
+  bus address, fixing the regression tests. (fd.o #52202, Simon)
+
+• Fix building with Valgrind 3.8, at the cost of causing harmless warnings
+  with Valgrind 3.6 on some compilers (fd.o #55932, Arun Raghavan)
+
+• Don't leak temporary fds pointing to /dev/null (fd.o #56927, Michel HERMIER)
+
+• Create session.d, system.d directories under CMake (fd.o #41319,
+  Ralf Habacker)
+
+• Unix-specific:
+  · Include alloca.h for alloca() if available, fixing compilation on
+    Solaris 10 (fd.o #63071, Dagobert Michelsen)
+
 D-Bus 1.6.8 (2012-09-28)
 ==
 

@@ -5435,7 +5435,7 @@ dbus_connection_set_route_peer_messages (DBusConnection             *connection,
   _dbus_return_if_fail (connection != NULL);
   
   CONNECTION_LOCK (connection);
-  connection->route_peer_messages = TRUE;
+  connection->route_peer_messages = value;
   CONNECTION_UNLOCK (connection);
 }
 
@@ -5974,7 +5974,8 @@ dbus_connection_get_data (DBusConnection   *connection,
   void *res;
 
   _dbus_return_val_if_fail (connection != NULL, NULL);
-  
+  _dbus_return_val_if_fail (slot >= 0, NULL);
+
   SLOTS_LOCK (connection);
 
   res = _dbus_data_slot_list_get (&slot_allocator,
