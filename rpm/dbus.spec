@@ -126,7 +126,9 @@ fi
 
 %post
 systemctl daemon-reload || :
-systemctl reload-or-try-restart dbus.service || :
+# Do not restart dbus on post as it can cause a lot of services to break.
+# We assume user is forced to reboot the system when system is updated.
+systemctl reload dbus.service || :
 
 %postun
 systemctl daemon-reload || :
