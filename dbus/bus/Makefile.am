@@ -226,8 +226,8 @@ if HAVE_SYSTEMD
 # Unconditionally enable D-Bus on systemd installations
 	$(mkinstalldirs) $(DESTDIR)$(systemdsystemunitdir)/sockets.target.wants
 	ln -fs ../dbus.socket $(DESTDIR)$(systemdsystemunitdir)/sockets.target.wants/dbus.socket
-	$(mkinstalldirs) $(DESTDIR)$(systemdsystemunitdir)/multi-user.target.wants
-	ln -fs ../dbus.service $(DESTDIR)$(systemdsystemunitdir)/multi-user.target.wants/dbus.service
+	$(mkinstalldirs) $(DESTDIR)$(systemdsystemunitdir)/basic.target.wants
+	ln -fs ../dbus.service $(DESTDIR)$(systemdsystemunitdir)/basic.target.wants/dbus.service
 endif
 
 if DBUS_UNIX
