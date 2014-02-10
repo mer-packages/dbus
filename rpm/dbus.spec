@@ -121,15 +121,17 @@ install -m0644 %{SOURCE2} %{buildroot}%{_libdir}/systemd/user/dbus.service
 
 %preun
 if [ "$1" -eq 0 ]; then
-systemctl stop dbus.service
+systemctl stop dbus.service || :
 fi
 
 %post
-systemctl daemon-reload
-systemctl reload-or-try-restart dbus.service
+systemctl daemon-reload || :
+# Do not restart dbus on post as it can cause a lot of services to break.
+# We assume user is forced to reboot the system when system is updated.
+systemctl reload dbus.service || :
 
 %postun
-systemctl daemon-reload
+systemctl daemon-reload || :
 
 %post libs -p /sbin/ldconfig
 
