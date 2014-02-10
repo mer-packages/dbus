@@ -153,7 +153,7 @@ systemctl daemon-reload
 /lib/systemd/system/dbus.service
 /lib/systemd/system/dbus.socket
 /lib/systemd/system/dbus.target.wants/dbus.socket
-/lib/systemd/system/multi-user.target.wants/dbus.service
+/lib/systemd/system/basic.target.wants/dbus.service
 /lib/systemd/system/sockets.target.wants/dbus.socket
 %attr(4750,root,dbus) /%{_lib}/dbus-1/dbus-daemon-launch-helper
 %dir %{_datadir}/dbus-1
