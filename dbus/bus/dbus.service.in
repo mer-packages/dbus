@@ -5,6 +5,7 @@ DefaultDependencies=no
 After=local-fs.target dbus.socket
 Before=basic.target
 Conflicts=shutdown.target
+RefuseManualStop=yes
 
 [Service]
 ExecStartPre=@EXPANDED_BINDIR@/dbus-uuidgen --ensure
