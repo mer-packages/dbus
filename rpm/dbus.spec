@@ -28,6 +28,8 @@ BuildRequires:  systemd-devel
 %if %{with X11}
 BuildRequires:  pkgconfig(x11)
 %endif
+Obsoletes:      %{name}-x11 < 1.6.20+git2
+Provides:       %{name}-x11
 
 %description
 D-Bus is a system for sending messages between applications. It is used both
@@ -62,16 +64,6 @@ Requires:   pkgconfig
 
 %description devel
 Headers and static libraries for D-Bus.
-
-%package x11
-Summary:    X11-requiring add-ons for D-Bus
-Group:      System/X11
-Requires:   %{name} = %{version}-%{release}
-
-%description x11
-D-Bus contains some tools that require Xlib to be installed, those are in this
-separate package so server systems need not install X.
-
 
 
 %prep
@@ -142,6 +134,7 @@ systemctl daemon-reload || :
 %doc COPYING
 /bin/dbus-cleanup-sockets
 /bin/dbus-daemon
+%{_bindir}/dbus-launch
 /bin/dbus-monitor
 /bin/dbus-send
 /bin/dbus-uuidgen
@@ -164,6 +157,7 @@ systemctl daemon-reload || :
 %{_datadir}/dbus-1/system-services
 %doc %{_mandir}/man1/dbus-cleanup-sockets.1.gz
 %doc %{_mandir}/man1/dbus-daemon.1.gz
+%doc %{_mandir}/man1/dbus-launch.1.gz
 %doc %{_mandir}/man1/dbus-monitor.1.gz
 %doc %{_mandir}/man1/dbus-send.1.gz
 %doc %{_mandir}/man1/dbus-uuidgen.1.gz
@@ -190,8 +184,3 @@ systemctl daemon-reload || :
 %dir %{_libdir}/dbus-1.0
 %{_libdir}/dbus-1.0/include/dbus/dbus-arch-deps.h
 %{_libdir}/pkgconfig/dbus-1.pc
-
-%files x11
-%defattr(-,root,root,-)
-%{_bindir}/dbus-launch
-%doc %{_mandir}/man1/dbus-launch.1.gz
