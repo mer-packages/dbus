@@ -368,7 +368,7 @@ bus_registry_list_services (BusRegistry *registry,
   
  error:
   for (j = 0; j < i; j++)
-    dbus_free (retval[i]);
+    dbus_free (retval[j]);
   dbus_free (retval);
 
   return FALSE;
@@ -588,8 +588,9 @@ bus_registry_acquire_service (BusRegistry      *registry,
   activation = bus_context_get_activation (registry->context);
   retval = bus_activation_send_pending_auto_activation_messages (activation,
 								 service,
-								 transaction,
-								 error);
+								 transaction);
+  if (!retval)
+    BUS_SET_OOM (error);
   
  out:
   return retval;
