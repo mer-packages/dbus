@@ -6,7 +6,7 @@ Name:       dbus
 %define dbus_user_uid 81
 
 Summary:    D-Bus message bus
-Version:    1.6.8
+Version:    1.6.22
 Release:    1
 Group:      System/Libraries
 License:    GPLv2+ or AFL
