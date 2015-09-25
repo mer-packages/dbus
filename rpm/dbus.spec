@@ -14,6 +14,7 @@ URL:        http://www.freedesktop.org/software/dbus/
 Source0:    http://dbus.freedesktop.org/releases/%{name}/%{name}-%{version}.tar.gz
 Source1:    dbus-user.socket
 Source2:    dbus-user.service
+Patch0:     dbus-1.9.0-enable-build-support-without-systemd-compatibility-l.patch
 Requires:   %{name}-libs = %{version}
 Requires:   systemd
 Requires(pre): /usr/sbin/useradd
@@ -68,6 +69,7 @@ Headers and static libraries for D-Bus.
 
 %prep
 %setup -q -n %{name}-%{version}/dbus
+%patch0 -p1
 
 %build
 
