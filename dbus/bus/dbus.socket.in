@@ -1,9 +1,0 @@
-[Unit]
-Description=D-Bus System Message Bus Socket
-DefaultDependencies=no
-After=local-fs.target
-Before=shutdown.target
-Conflicts=shutdown.target
-
-[Socket]
-ListenStream=@DBUS_SYSTEM_SOCKET@
